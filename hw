@@ -1,0 +1,80 @@
+#!/bin/bash
+
+textToDate ()
+{
+	if [ ! $(grep "\d\d\.\d\d\.\d\d" <<< "$1") ]
+	then
+		d=$(sed 's/next\|n/tomorrow/' <<< "$1")
+		#echo $d
+		date --date="$d" +"%y.%m.%d"
+	else
+		echo "$1";
+	fi
+}
+
+printAssignments ()
+{
+	today=$(textToDate "today" | tr -d '.')
+	IFS=$'\n'
+	x=0
+	for i in $(sort -n $file | grep -v "^x")
+	do
+		x=$(($x+1))
+		date=$(tr -d '.' <<< "$i" | cut -f1)
+		if [ "$date" -le "$today" ]
+		then
+			echo -e "$x. \e[7m$i\e[0m"
+		elif [ "$1" = "onlyDue" ]
+		then
+			break
+		else
+			echo "$x. $i"
+		fi
+	done
+}
+
+
+file="$HOME/Documents/homework.txt"
+case "$1" in
+	"show")
+		if [ -n "$2" ] #TODO: better arguments (multi-word, expand some)
+		then
+			if [ "$2" = "due" ]
+			then
+				printAssignments onlyDue
+			else
+				date="$(textToDate "$2")" && grep --color=never "^$date" <"$file"
+			fi
+		else
+			printAssignments
+		fi
+		;;
+	"add")
+		read -p "Due: " dueDate
+		dueDate="$(textToDate $dueDate)"
+		read -p "Assignment: " assignment
+		read -p "Tags: " tags
+		read -p "Est. Time to Complete: " time
+		if [ -n "$time" ]
+		then
+			time="+T:$time"
+		fi
+		echo "Added Assignment: $dueDate	$assignment	$tags	$time"
+		echo "$dueDate	$assignment	$tags	$time" >> "$file"
+		;;
+	"done")
+		if [ -n "$2" ]
+		then
+			line="$(sort -n $file | grep -v "^x" |sed "${2}q;d")"
+			sed -i "$(grep -n "$line" $file | cut -f1 -d:)s/^/x/" "$file" #TODO: AAAAAAAHHHHHH THIS IS AWFUL FIX IT PLEASE
+			echo "\"$line\" marked as done"
+		else
+			echo "This needs an argument!"
+		fi
+		;;
+	"n"|"next")
+		date="$(textToDate "$1")" && grep --color=never "^$date" <"$file"
+		;;
+	*)
+		echo "Usage:"
+esac
