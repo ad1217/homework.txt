@@ -2,11 +2,10 @@
 
 textToDate ()
 {
-	if [ ! $(grep "\d\d\.\d\d\.\d\d" <<< "$1") ]
+	if [ ! "$(grep "[0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]" <<< "$1")" ]
 	then
-		d=$(sed 's/next\|n/tomorrow/' <<< "$1")
-		#echo $d
-		date --date="$d" +"%y.%m.%d"
+		d=$(sed 's/^\(next\|n\)$/tomorrow/' <<< "$1")
+		date --date="$d" +"%y.%m.%d" || exit
 	else
 		echo "$1";
 	fi
