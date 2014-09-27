@@ -105,6 +105,18 @@ case "$1" in
 	"edit")
 		$VISUAL "$file"
 		;;
+	"help")
+		echo "Usage:
+  add [date] [class] [assignment] [time to complete]: Add a new assignment
+  done [assinment number]: mark an assignment as done
+  edit: open \"$VISUAL\" (\$VISUAL) for editing
+  help: this help
+  show [date|command]: show assignments
+    [date]: prints assignments due on the date and overdue assignments
+    due: show overdue assignments
+    done: show completed assignments
+ [date] is passed through \"date\", with n/next changed to tommorrow"
+		;;
 
 	"show"|*)
 		if [ "$1" = "show" ]
