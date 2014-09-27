@@ -15,16 +15,20 @@ textToDate ()
 
 checkDone ()
 {
-	if [ "$2"  = "done" ]
-	then
-		grep "^x" <<<"$1" >/dev/null && echo "$x. $1"
-	elif [ "$2" = "dim" ]
-	then
-		grep "^x" <<<"$1" >/dev/null && echo "$(tput dim)$x. $1$(tput sgr0)"
-		grep -v "^x" <<<"$1" >/dev/null && echo "$x. $1"
-	else
-		grep -v "^x" <<<"$1" >/dev/null && echo "$x. $1"
-	fi
+	case "$2" in
+		"done")
+			grep "^x" <<<"$1" >/dev/null && echo "$x. $1"
+			;;
+
+		"dim")
+			grep "^x" <<<"$1" >/dev/null && echo "$(tput dim)$x. $1$(tput sgr0)"
+			grep -v "^x" <<<"$1" >/dev/null && echo "$x. $1"
+			;;
+
+		*)
+			grep -v "^x" <<<"$1" >/dev/null && echo "$x. $1"
+			;;
+	esac
 }
 
 printAssignments ()
@@ -106,6 +110,7 @@ $line"
 	"edit")
 		$VISUAL "$file"
 		;;
+
 	"help")
 		echo "Usage:
   add [date] [class] [assignment] [time to complete]: Add a new assignment
