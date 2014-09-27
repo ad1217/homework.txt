@@ -11,23 +11,47 @@ textToDate ()
 	fi
 }
 
+checkDone ()
+{
+	if [ "$2"  = "done" ]
+	then
+		grep "^x" <<<"$1" >/dev/null && echo "$x. $1"
+	elif [ "$2" = "dim" ]
+	then
+		grep "^x" <<<"$1" >/dev/null && echo "$(tput dim)$x. $1$(tput sgr0)"
+		grep -v "^x" <<<"$1" >/dev/null && echo "$x. $1"
+	else
+		grep -v "^x" <<<"$1" >/dev/null && echo "$x. $1"
+	fi
+}
+
 printAssignments ()
 {
 	today=$(textToDate "today" | tr -d '.')
 	IFS=$'\n'
+	if [ -n "$1" -a "$1" != "due" -a "$1" != "done" ]
+	then
+		inDate="$(textToDate "$1" | tr -d '.' | cut -f1)"
+	fi
 	x=0
-	for i in $(sort -n $file | grep -v "^x")
+	for i in $(sort -n $file | grep -v "^	")
 	do
 		x=$(($x+1))
-		date=$(tr -d '.' <<< "$i" | cut -f1)
+		date=$(sed 's/^x//' <<<"$i" | tr -d '.' | cut -f1)
 		if [ "$date" -le "$today" ]
 		then
-			echo -e "$x. \e[7m$i\e[0m"
-		elif [ "$1" = "onlyDue" ]
+			checkDone "$i" "$1" >/dev/null && echo "$(tput bold)$(checkDone "$i" "$1")$(tput sgr0)" #TODO: AAAARRRRGGGG
+		elif [ "$1" = "due" ]
 		then
 			break
+		elif [ -n "$inDate" ]
+		then
+			if [ "$inDate" -eq "$date" ]
+			then
+				checkDone "$i" "dim"
+			fi
 		else
-			echo "$x. $i"
+			checkDone "$i" "$1"
 		fi
 	done
 }
@@ -35,20 +59,6 @@ printAssignments ()
 
 file="$HOME/Documents/homework.txt"
 case "$1" in
-	"show")
-		if [ -n "$2" ] #TODO: better arguments (multi-word, expand some)
-		then
-			if [ "$2" = "due" ]
-			then
-				printAssignments onlyDue
-			else
-				date="$(textToDate "$2")" && grep --color=never "^$date" <"$file"
-			fi
-		else
-			printAssignments
-		fi
-		;;
-
 	"add")
 		if [ -z "$2" ]
 		then
@@ -91,9 +101,12 @@ Confirm [Y/n]: "
 		fi
 		;;
 
-	"n"|"next")
-		date="$(textToDate "$1")" && grep --color=never "^$date" <"$file"
+	"show"|*)
+		if [ "$1" = "show" ]
+			then
+			printAssignments $2
+			else
+			printAssignments $1
+			fi
 		;;
-	*)
-		echo "Usage:"
 esac
