@@ -48,19 +48,38 @@ case "$1" in
 			printAssignments
 		fi
 		;;
+
 	"add")
-		read -p "Due: " dueDate
-		dueDate="$(textToDate $dueDate)"
-		read -p "Assignment: " assignment
-		read -p "Tags: " tags
-		read -p "Est. Time to Complete: " time
+		if [ -z "$2" ]
+		then
+			read -p "Due: " date
+			date="$(textToDate "$date")"
+			echo $date
+			read -p "Class: " class
+			read -p "Description: " desc
+			read -p "Est. Time to Complete: " time
+		else
+			date="$(textToDate "$2")"
+			class=$3
+			desc=$4
+			time=$5
+			echo -n "Adding Assignment: $date	@$class	$desc	$time
+Confirm [Y/n]: "
+			read input
+			if [ "$input" = "n" ];then exit;fi
+		fi
 		if [ -n "$time" ]
 		then
 			time="+T:$time"
 		fi
-		echo "Added Assignment: $dueDate	$assignment	$tags	$time"
-		echo "$dueDate	$assignment	$tags	$time" >> "$file"
+		if [ -n "$class" ]
+		then
+			class="@$class"
+		fi
+		echo "Added Assignment: $date	$class	$desc	$time"
+		echo "$date	$class	$desc	$time" >> "$file"
 		;;
+
 	"done")
 		if [ -n "$2" ]
 		then
@@ -71,6 +90,7 @@ case "$1" in
 			echo "This needs an argument!"
 		fi
 		;;
+
 	"n"|"next")
 		date="$(textToDate "$1")" && grep --color=never "^$date" <"$file"
 		;;
