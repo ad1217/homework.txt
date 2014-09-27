@@ -93,20 +93,24 @@ Confirm [Y/n]: "
 	"done")
 		if [ -n "$2" ]
 		then
-			line="$(sort -n $file | grep -v "^x" |sed "${2}q;d")"
-			sed -i "$(grep -n "$line" $file | cut -f1 -d:)s/^/x/" "$file" #TODO: AAAAAAAHHHHHH THIS IS AWFUL FIX IT PLEASE
-			echo "\"$line\" marked as done"
+			line="$(sort -n $file | grep -v "^	" |sed "${2}q;d")"
+			sed -i "$(grep -n "$line" $file | cut -f1 -d:)s/^/x/" "$(realpath "$file")" #TODO: AAAAAAAHHHHHH THIS IS AWFUL FIX IT PLEASE
+			echo "Marked as done: \"$line\""
 		else
 			echo "This needs an argument!"
 		fi
 		;;
 
+	"edit")
+		$VISUAL "$file"
+		;;
+
 	"show"|*)
 		if [ "$1" = "show" ]
-			then
+		then
 			printAssignments $2
-			else
+		else
 			printAssignments $1
-			fi
+		fi
 		;;
 esac
