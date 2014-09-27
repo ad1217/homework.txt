@@ -4,7 +4,7 @@ readonly file="$HOME/Documents/homework.txt"
 
 textToDate ()
 {
-	if [ ! "$(grep "[0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]" <<< "$1")" ]
+	if [ ! "$(grep -P "(\d\d\.?){3}" <<< "$1")" ]
 	then
 		d=$(sed 's/^\(next\|n\)$/tomorrow/' <<< "$1")
 		date --date="$d" +"%y.%m.%d" || exit
@@ -73,11 +73,8 @@ case "$1" in
 			class=$3
 			desc=$4
 			time=$5
-			echo -n "Adding Assignment: $date	@$class	$desc	$time
-Confirm [Y/n]: "
-			read input
-			if [ "$input" = "n" ];then exit;fi
 		fi
+	  
 		if [ -n "$time" ]
 		then
 			time="+T:$time"
@@ -86,6 +83,10 @@ Confirm [Y/n]: "
 		then
 			class="@$class"
 		fi
+
+		echo -n "Adding Assignment: $date	$class	$desc	$time"
+		read -p "Confirm [Y/n]: " input
+		if [ "$input" = "n" ];then exit;fi
 		echo "Added Assignment: $date	$class	$desc	$time"
 		echo "$date	$class	$desc	$time" >> "$file"
 		;;
