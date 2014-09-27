@@ -1,5 +1,7 @@
 #!/bin/bash
 
+readonly file="$HOME/Documents/homework.txt"
+
 textToDate ()
 {
 	if [ ! "$(grep "[0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]" <<< "$1")" ]
@@ -56,8 +58,6 @@ printAssignments ()
 	done
 }
 
-
-file="$HOME/Documents/homework.txt"
 case "$1" in
 	"add")
 		if [ -z "$2" ]
