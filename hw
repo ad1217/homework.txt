@@ -94,9 +94,10 @@ case "$1" in
 	"done")
 		if [ -n "$2" ]
 		then
-			line="$(sort -n $file | grep -v "^	" |sed "${2}q;d")"
-			sed -i "$(grep -n "$line" $file | cut -f1 -d:)s/^/x/" "$(realpath "$file")" #TODO: AAAAAAAHHHHHH THIS IS AWFUL FIX IT PLEASE
-			echo "Marked as done: \"$line\""
+			line="$(sort -n $file | grep -v "^	" | sed "${2}q;d")"
+			sed -i "/$line/cx$line" "$(realpath "$file")"
+			echo "Marked as done:
+$line"
 		else
 			echo "This needs an argument!"
 		fi
