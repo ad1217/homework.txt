@@ -15,18 +15,23 @@ textToDate ()
 
 checkDone ()
 {
+	isDone="$(grep -q "^x" <<<"$1" && echo true || echo false)"
 	case "$2" in
 		"done")
-			grep "^x" <<<"$1" >/dev/null && echo "$x. $1"
+			$isDone && echo "$x. $1"
 			;;
 
 		"dim")
-			grep "^x" <<<"$1" >/dev/null && echo "$(tput dim)$x. $1$(tput sgr0)"
-			grep -v "^x" <<<"$1" >/dev/null && echo "$x. $1"
+			$isDone && echo "$(tput dim)$x. $1$(tput sgr0)"
+			$isDone || echo "$x. $1"
+			;;
+
+		"bold")
+			$isDone || echo "$(tput bold)$x. $1$(tput sgr0)"
 			;;
 
 		*)
-			grep -v "^x" <<<"$1" >/dev/null && echo "$x. $1"
+		    $isDone || echo "$x. $1"
 			;;
 	esac
 }
@@ -46,7 +51,7 @@ printAssignments ()
 		date=$(sed 's/^x//' <<<"$i" | tr -d '.' | cut -f1)
 		if [ "$date" -le "$today" ]
 		then
-			checkDone "$i" "$1" >/dev/null && echo "$(tput bold)$(checkDone "$i" "$1")$(tput sgr0)" #TODO: AAAARRRRGGGG
+			checkDone "$i" "bold"
 		elif [ "$1" = "due" ]
 		then
 			break
