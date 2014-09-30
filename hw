@@ -27,7 +27,12 @@ checkDone ()
 			;;
 
 		"bold")
-			$isDone || echo "$(tput bold)$x. $1$(tput sgr0)"
+			if [ "$3" = "done" ]
+			then
+				$isDone && echo "$(tput bold)$x. $1$(tput sgr0)"
+			else
+				$isDone || echo "$(tput bold)$x. $1$(tput sgr0)"
+			fi
 			;;
 
 		*)
@@ -51,7 +56,7 @@ printAssignments ()
 		date=$(sed 's/^x//' <<<"$i" | tr -d '.' | cut -f1)
 		if [ "$date" -le "$today" ]
 		then
-			checkDone "$i" "bold"
+			checkDone "$i" "bold" "$1"
 		elif [ "$1" = "due" ]
 		then
 			break
