@@ -98,7 +98,7 @@ case "$1" in
 			class="@$class"
 		fi
 
-		echo -n "Adding Assignment: $date	$class	$desc	$time"
+		echo "Adding Assignment: $date	$class	$desc	$time"
 		read -p "Confirm [Y/n]: " input
 		if [ "$input" = "n" ];then exit;fi
 		echo "Added Assignment: $date	$class	$desc	$time"
