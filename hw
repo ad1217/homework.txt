@@ -108,8 +108,8 @@ case "$1" in
 	"done")
 		if [ -n "$2" ]
 		then
-			line="$(sort -n $file | grep -v "^	" | sed "${2}q;d")"
-			sed -i "/$line/cx$line" "$(realpath "$file")"
+			line="$(sort -n $file | grep -v "^	" | sed "${2}q;d" | sed 's:\/:\\/:g')" # nasty hacks! find the line coresponding to the given number, then replace / with \/ for the next sed. TODO: make this less terrible
+			sed -i "/$line/s/^/x/" "$(realpath "$file")" #add x to begining of $line in file
 			echo "Marked as done:
 $line"
 		else
